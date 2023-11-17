@@ -1,0 +1,63 @@
+version: "3.7"
+services:
+  csweb:
+    build: 
+      context: './'
+      args:
+        MYSQL_DATABASE: cspro
+        MYSQL_USER: cspro
+        MYSQL_PASSWORD: Cspro2023+
+        API_URL: http://localhost/csweb/api
+      
+        TIMEZONE: UTC
+    volumes:
+      - /var/www/csweb-files:/var/www/html/files
+    environment:
+      TZ: UTC      
+    networks:
+      - frontend
+      - backend
+    ports: 
+      - 8005:80
+    depends_on: 
+      - mysql
+  mysql:
+    image: mysql:latest
+    command: ['--default-authentication-plugin=mysql_native_password']
+    restart: always
+    ports:
+      - 33065:3306
+    volumes:
+      - ./.vols/db_data:/var/lib/mysql
+      - ./db-init:/docker-entrypoint-initdb.d
+    networks:
+      - backend
+    environment:
+      MYSQL_ROOT_PASSWORD: Cspro2023+
+      MYSQL_DATABASE: cspro
+      MYSQL_USER: cspro
+      MYSQL_PASSWORD: Cspro2023+
+      TZ: UTC
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 33065
+      PMA_ABSOLUTE_URI: /var/www/html/
+      MYSQL_USER: cspro
+      MYSQL_PASSWORD: Cspro2023+
+      MYSQL_ROOT_PASSWORD: Cspro2023+
+      TZ: UTC
+    ports:
+      - 8095:80
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - mysql
+networks:
+  frontend:
+  backend:
+volumes:
+    db_data:
+    csweb_files:
